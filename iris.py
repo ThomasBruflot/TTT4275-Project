@@ -9,18 +9,21 @@ iris = load_iris()
 #print('The names of target classes:\n',iris['target_names'])
 #print('The full description of the dataset:\n',iris['DESCR'])
 #print('The path to the location of the data:\n',iris['filename'])
+''
 
 
-
-trainingSetSetosa = iris['data'][0:29]
+trainingSetSetosa = iris['data'][0:30]
 print(len(trainingSetSetosa))
-print()
 testingSetSetosa = iris['data'][30:50]
 print(len(testingSetSetosa))
 
-trainingSetVersicolor = iris['data'][51:79]
-testingSetVersicolor = iris['data'][80:99]
+trainingSetVersicolor = iris['data'][50:80]
+print(len(trainingSetVersicolor))
+testingSetVersicolor = iris['data'][80:100]
+print(len(testingSetVersicolor))
 
-trainingSetVirginica = iris['data'][100:129]
-testingSetVirginica = iris['data'][130:149]
+trainingSetVirginica = iris['data'][100:130]
+print(len(trainingSetVirginica))
+testingSetVirginica = iris['data'][130:150]
 
+print(len(testingSetVirginica))
