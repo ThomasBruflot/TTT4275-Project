@@ -11,4 +11,3 @@ print('The names of the dataset columns:\n',iris['feature_names'])
 print('The names of target classes:\n',iris['target_names'])
 
 
-annatull = 1
