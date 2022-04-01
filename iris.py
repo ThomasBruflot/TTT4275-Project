@@ -1,7 +1,6 @@
 import sklearn
 from sklearn.datasets import load_iris
 import numpy as np
-import itertools
 
 iris = load_iris()
 ##print(iris)
@@ -19,7 +18,7 @@ trainingSetVirginica = iris['data'][100:130]
 testingSetVirginica = iris['data'][130:150]
 #The total training set is now a 90x4 (Rows x Columns) matrix
 totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
-
+print(totalTrainingSet)
 #We need a total array of t values, we thus need to make a function that makes an array containing 
 #the targets in iris set.
 def get_Targets():
@@ -56,11 +55,12 @@ def calculate_MSE(g,t):
 def calculate_prediction_g(x,W):
     expList = []
     #Loop through the samples and multiply with the W weights and use sigmoid to
-    #get predictions
+    #get predictions between 0 and 1
     for i in range(len(x)): 
         expList.append(np.exp(-(np.matmul(x[i],W))))
     z_ikExponential = np.array(expList)
     g = 1 / (1+ z_ikExponential)
+    return g
 
 #Need to implement equation (22) and (23)
 #Comp. Eq. (22):
@@ -82,7 +82,7 @@ alpha = 0.5
 #x are the different training sets / samples
 
 def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iterations=500):
-    W = np.zeros((3,4)) #number of classes and number of features as it is CxD and D is dimension for features
+    W = np.zeros((3,5)) #number of classes and number of features as it is CxD and D is dimension for features, have 5 because of w_0
     MSE_List = []
     #Here we start the actual training by iterating through the training set and using the MSE
     for i in range(iterations):
@@ -93,6 +93,5 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
         MSE_List.append(MSE)
     return np.array(MSE_List)
 
-#print("MSE_LIST: ", training_lin_classifier(totalTrainingSet,get_Targets(),alpha,100))
+print("MSE_LIST: ", training_lin_classifier(totalTrainingSet,get_Targets(),alpha,100))
 
-#print(np.zeros((3,4)))
