@@ -1,3 +1,4 @@
+from calendar import c
 import pandas as pd                     
 import numpy as np
 import matplotlib.pyplot as plt         #visual   
@@ -23,12 +24,12 @@ iris = load_iris()
 
 #print(iris["DESCR"]) #Description of the dataset represented in a nice way
 
-#print(iris.data.T) #plot the transpose. List of lists. Print 4 sublists are arrays that corr esponds to 1.sepal length, 2.sepal width, 3. petal length, 4. petal width 
+print(iris.data.T) #plot the transpose. List of lists. Print 4 sublists are arrays that corr esponds to 1.sepal length, 2.sepal width, 3. petal length, 4. petal width 
 
 features = iris.data.T
 
 sepal_length = features[0]
-spetal_width = features[1]
+sepal_width = features[1]
 petal_length = features[2]
 petal_width = features[3]
 
@@ -38,7 +39,17 @@ sepal_width_label = iris.feature_names[1]
 petal_length_label = iris.feature_names[2]
 petal_width_label = iris.feature_names[3]
 
-print(sepal_length_label)
+#iris_names = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+
+plt.scatter(sepal_length, sepal_width, c = iris.target)
+plt.xlabel(sepal_length_label)
+plt.ylabel(sepal_width_label)
+
+plt.xlabel(iris.feature_names[0])
+
+plt.title('Iris Dataset')
+plt.legend(iris.target_names)
+plt.show()
 
 
- 
+  
