@@ -1,7 +1,7 @@
 import sklearn
 from sklearn.datasets import load_iris
 import numpy as np
-
+from sklearn.metrics import mean_squared_error
 
 Num_Classes = 3
 Num_Features = 4
@@ -86,7 +86,7 @@ def calculate_W(prevW,alpha,gradW_MSE):
     W = prevW-alpha*gradW_MSE
     return W
 
-alpha = 0.5
+alpha = 0.01
 
 #x are the different training sets / samples
 
@@ -98,7 +98,8 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
         #training:
         g = calculate_prediction_g(trainingSetSamples,W) #Use the totalTrainingSet defined earlier with all the data
         W = calculate_W(W,alpha,calculate_gradW_MSE(g,trainingSetTrueLabels,trainingSetSamples))
-        MSE = calculate_MSE(g,trainingSetTrueLabels)
+        #MSE = calculate_MSE(g,trainingSetTrueLabels)
+        MSE = mean_squared_error(g,trainingSetTrueLabels)
         MSE_List.append(MSE)
     return np.array(MSE_List)
 
