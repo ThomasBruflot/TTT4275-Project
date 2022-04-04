@@ -101,7 +101,20 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
         #MSE = calculate_MSE(g,trainingSetTrueLabels)
         MSE = mean_squared_error(g,trainingSetTrueLabels)
         MSE_List.append(MSE)
-    return np.array(MSE_List)
+        
+    return np.array(MSE_List),g
 
-print("MSE_LIST: ", training_lin_classifier(totalTrainingSet,get_Targets(),alpha,100))
+MSE_List_ret, g_ret = training_lin_classifier(totalTrainingSet,get_Targets(),alpha,1000)
+print("MSE_LIST and g: ",MSE_List_ret,g_ret)
 
+def round_predictions(g):
+    g_rounded = g
+    for i in range(len(g_rounded)):
+        max_val = max(g_rounded[i])
+        for k in range(len(g_rounded[0])):
+            if(g_rounded[i][k] >= max_val):
+                g_rounded[i][k] = 1
+            else:
+                g_rounded[i][k] = 0           
+    return g_rounded #Returns the predictions, here every entry x in the [x,x,x] a float
+print("rounded: ", round_predictions(g_ret))
