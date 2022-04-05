@@ -6,7 +6,7 @@ import seaborn as sns                   #Simple graphmodel
 from sklearn.datasets import load_iris
 
 
-#data = load_iris()              #load_iris() is a link that provides documentation
+dataSet = load_iris()              #load_iris() is a link that provides documentation
 
 #https://en.wikipedia.org/wiki/Iris_flower_data_set
 #The data set contains 3 classes of 50 instances each, where each class refert to a type of iris plant.
@@ -18,10 +18,7 @@ iris = load_iris()
 # print('The classification target:\n',iris['target'])
 # print('The names of the dataset columns:\n',iris['feature_names'])
 # print('The names of target classes:\n',iris['target_names'])
-
-
 #print(iris.keys())
-
 #print(iris["DESCR"]) #Description of the dataset represented in a nice way
 
 print(iris.data.T) #plot the transpose. List of lists. Print 4 sublists are arrays that corr esponds to 1.sepal length, 2.sepal width, 3. petal length, 4. petal width 
@@ -50,6 +47,3 @@ plt.xlabel(iris.feature_names[0])
 plt.title('Iris Dataset')
 plt.legend(iris.target_names)
 plt.show()
-
-
-  

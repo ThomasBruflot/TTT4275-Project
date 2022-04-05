@@ -1,4 +1,3 @@
-from re import X
 import sklearn
 from sklearn.datasets import load_iris
 import numpy as np
@@ -19,7 +18,7 @@ trainingSetVirginica = iris['data'][100:130]
 testingSetVirginica = iris['data'][130:150]
 #The total training set is now a 90x4 (Rows x Columns) matrix
 totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
-#print(totalTrainingSet)
+print(totalTrainingSet)
 #We need a total array of t values, we thus need to make a function that makes an array containing 
 #the targets in iris set.
 def get_Targets():
@@ -34,7 +33,7 @@ def get_Targets():
     for i in range(N):
         t.append([0,0,1])
     return np.array(t)
-#print("target list: ", get_Targets())
+print("target list: ", get_Targets())
 
 
 
@@ -64,17 +63,6 @@ def calculate_prediction_g(x,W):
     return g
 
 #!!!!define 2 matrix and try to run function. then print. if it works, print the velues. see the difference
-
-a = [1,2]
-b = [3,4]
-print("g: ", calculate_prediction_g(a,b))
-
-
-
-
-###--------- test ----------------------------------------
-
-
 
 #Need to implement equation (22) and (23)
 #Comp. Eq. (22):
@@ -107,5 +95,5 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
         MSE_List.append(MSE)
     return np.array(MSE_List)
 
-#print("MSE_LIST: ", training_lin_classifier(totalTrainingSet,get_Targets(),alpha,100))
+print("MSE_LIST: ", training_lin_classifier(totalTrainingSet,get_Targets(),alpha,100))
 
