@@ -6,8 +6,8 @@ iris = load_iris()
 ##print(iris)
 #print('The data matrix:\n',iris['data'])
 print('The classification target:\n',iris['target'])
-#print('The names of the dataset columns:\n',iris['feature_names'])
-#print('The names of target classes:\n',iris['target_names'])
+print('The names of the dataset columns:\n',iris['feature_names'])
+print('The names of target classes:\n',iris['target_names'])
 #print('The full description of the dataset:\n',iris['DESCR'])
 #print('The path to the location of the data:\n',iris['filename'])
 trainingSetSetosa = iris['data'][0:30]
@@ -34,7 +34,6 @@ def get_Targets():
         t.append([0,0,1])
     return np.array(t)
 print("target list: ", get_Targets())
-
 
 
 #Chapter 3.2 describes the MSE as a way to distinguish between the different iris types as it
