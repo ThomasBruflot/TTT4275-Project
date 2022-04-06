@@ -9,6 +9,7 @@ from sklearn.metrics import mean_squared_error
 
 Num_Classes = 3
 Num_Features = 4
+Num_Data_P_Class = 30
 iris = load_iris()
 ##print(iris)
 #print('The data matrix:\n',iris['data'])
@@ -71,31 +72,46 @@ def plot_sepal_data(vec):
 
 #-----------------------------------------------
 
-
-
-trainingSetSetosa = iris['data'][0:30]
-testingSetSetosa = iris['data'][30:50]
-trainingSetVersicolor = iris['data'][50:80]
-testingSetVersicolor = iris['data'][80:100]
-trainingSetVirginica = iris['data'][100:130]
-testingSetVirginica = iris['data'][130:150]
-#The total training set is now a 90x4 (Rows x Columns) matrix
-totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
-totalTrainingSet = np.reshape(totalTrainingSet,[30*Num_Classes,Num_Features])
-
+def loadData(case):
+    if(case == 0):
+        trainingSetSetosa = iris['data'][0:30]
+        testingSetSetosa = iris['data'][30:50]
+        trainingSetVersicolor = iris['data'][50:80]
+        testingSetVersicolor = iris['data'][80:100]
+        trainingSetVirginica = iris['data'][100:130]
+        testingSetVirginica = iris['data'][130:150]
+        #The total training set is now a 90x4 (Rows x Columns) matrix
+        totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
+        totalTrainingSet = np.reshape(totalTrainingSet,[30*Num_Classes,Num_Features])
+        #The total testing set is now a 60x4 (Rows x Columns) matrix
+        totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
+        totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features])
+    else:
+        testingSetSetosa = iris['data'][0:20]
+        trainingSetSetosa = iris['data'][20:50]
+        testingSetVersicolor = iris['data'][50:70]
+        trainingSetVersicolor = iris['data'][70:100]
+        testingSetVirginica = iris['data'][100:120]
+        trainingSetVirginica = iris['data'][120:150]
+        #The total training set is now a 90x4 (Rows x Columns) matrix
+        totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
+        totalTrainingSet = np.reshape(totalTrainingSet,[30*Num_Classes,Num_Features])
+        #The total testing set is now a 60x4 (Rows x Columns) matrix
+        totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
+        totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features])
+    return totalTrainingSet,totalTestingSet
 
 #We need a total array of t values, we thus need to make a function that makes an array containing 
 #the targets in iris set.
-def get_Targets():
-    N = 30
+def get_Targets(n_data_per_class):
     #We here say that the first 30 values in the training set are all [1,0,0] which means
     #[100% setosa, 0%versicolor, 0%virginica] and so on. Therefore t is a 3x90 array
     t = []
-    for i in range(N):
+    for i in range(n_data_per_class):
         t.append([1,0,0])
-    for i in range(N):
+    for i in range(n_data_per_class):
         t.append([0,1,0])
-    for i in range(N):
+    for i in range(n_data_per_class):
         t.append([0,0,1])
     return np.array(t)
 
@@ -120,8 +136,8 @@ def calculate_MSE(g,t):
 def sigmoid(x):
     return np.array(1/(1+np.exp(-x)))
 
-def calculate_prediction_g(x,W):
-    g = np.zeros([30*Num_Classes,Num_Classes])
+def calculate_prediction_g(x,W,n_data_per_class):
+    g = np.zeros([n_data_per_class*Num_Classes,Num_Classes])
     for i,sample in enumerate(x):
         sample = np.append([sample],[1])
         z = np.matmul(W,sample)
@@ -175,25 +191,15 @@ def error_rate(g,t):
 def calculate_confusion_matrix(g, t): 
     classes = np.unique(g)
 
-    confusion_matrix = []
-    for predicted_class in classes:
-        row = []
-        for true_variant in classes:
-            #If condition "known_truth == true_variant" is true, return elements from [0]
-            #checks all occurences of true_variant in known_truth in [0]
-            true_occ = np.where(t == true_variant)[0]    
+    confusion_matrix = np.zeros((3,3)).astype(int)
+    for gk,tk in zip(g,t): #Går gjennom både predictions og true labels parallelt
+            pred_index = np.argmax(gk) #Gir ut 0 for [1 0 0], 1 for [0 1 0] og 2 for [0 0 1]
+            true_index = np.argmax(tk) #Gir ut 0 for [1 0 0], 1 for [0 1 0] og 2 for [0 0 1]
+            confusion_matrix[true_index][pred_index] += 1 #Bruker hvor 1-eren er til å indeksere matrisen
+                
 
-            #If condition "prediction == predicted_class" is true, return elements from [0]
-            #checks all occurences of predicted_class in g in [0]
-            predicted_occ = np.where(g == predicted_class)[0]
-            print("predicted_occ", predicted_occ)
-            #want the elements where it is a match
-            num_occ = len(np.intersect1d(true_occ,predicted_occ))   #intersect1d finds the intersection of two arrays.
-            row.append(num_occ)
         
-        confusion_matrix.append(row)
-
-    return np.array(confusion_matrix)
+    return confusion_matrix
 
 def plot_confusion_matrix(confusion_matrix, classes, name="Confusin martix"):
     dataframe_cm = pd.DataFrame(confusion_matrix, index=classes, columns=classes)
@@ -208,20 +214,38 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
     #Here we start the actual training by iterating through the training set and using the MSE
     for i in range(iterations):
         #training:
-        g = calculate_prediction_g(trainingSetSamples,W) #Use the totalTrainingSet defined earlier with all the data
+        g = calculate_prediction_g(trainingSetSamples,W,Num_Data_P_Class) #Use the totalTrainingSet defined earlier with all the data
         W = calculate_W(W,alpha,calculate_gradW_MSE(g,trainingSetTrueLabels,trainingSetSamples))
-        #MSE = calculate_MSE(g,trainingSetTrueLabels)
         MSE = mean_squared_error(g,trainingSetTrueLabels)
         MSE_List.append(MSE)
     
     er = error_rate(round_predictions(g),trainingSetTrueLabels)
     print(er)
-    conf_matr = calculate_confusion_matrix(g,trainingSetTrueLabels)
+    conf_matr = calculate_confusion_matrix(round_predictions(g),trainingSetTrueLabels)
     print(conf_matr)
-    return np.array(MSE_List),g
+    return np.array(MSE_List),g, W
 
-MSE_List_ret, g_ret = training_lin_classifier(totalTrainingSet,get_Targets(),alpha,1000)
-print("MSE_LIST and g: ",MSE_List_ret,g_ret)
+totalTrainingSet, totalTestingSet = loadData(1)
+
+MSE_List_ret, g_ret, W_ret = training_lin_classifier(totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+print("MSE_LIST and g from testing: ",MSE_List_ret,g_ret)
+
+def testing_lin_classifier(testSetSamples,testSetTrueLabels,W, iterations=500):
+    test_MSE_List = []
+
+    for i in range(iterations):
+        g = calculate_prediction_g(testSetSamples, W,20)
+        MSE = mean_squared_error(g,testSetTrueLabels)
+        test_MSE_List.append(MSE)
+    er = error_rate(round_predictions(g),testSetTrueLabels)
+    print(er)
+    conf_matr = calculate_confusion_matrix(round_predictions(g),testSetTrueLabels)
+    print(conf_matr)
+    return np.array(test_MSE_List),g
+
+test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
+print("Testing results: \n")
+print("MSE_List_test and g_test: ",MSE_List_ret,g_ret)
 
 
 
