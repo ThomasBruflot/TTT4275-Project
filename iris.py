@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import pandas as pd
 import seaborn as sns
-
+from matplotlib.patches import Rectangle
 from sklearn.datasets import load_iris
 from sklearn.metrics import mean_squared_error
 
@@ -250,8 +250,75 @@ print("MSE_List_test and g_test: ",MSE_List_ret,g_ret)
 
 
 
+#------------------ HISTOGRAM -----------------------
+
+def plot_histograms():
+    #We have 4 features per class (sep len and width, pet len and width)
+    #We need to plot one feature at the time and look at it for the three classes. 
+    feature_list = [] #[Seplen,SepWid,PetLen,PetWid]
+    num_bins = 10
+    #Extract features into the feature list to make it easier to make histogram
+    feature_list.append([i[0] for i in iris['data']])
+    feature_list.append([i[1] for i in iris['data']])
+    feature_list.append([i[2] for i in iris['data']])
+    feature_list.append([i[3] for i in iris['data']])
+
+    
+    hist0_set,bins0_set = np.histogram(feature_list[0][0:50], bins=10)
+    hist0_ver,bins0_ver = np.histogram(feature_list[0][50:100], bins=10)
+    hist0_vir,bins0_vir = np.histogram(feature_list[0][100:150], bins=10)
+
+    hist1_set,bins1_set = np.histogram(feature_list[1][0:50], bins=10)
+    hist1_ver,bins1_ver = np.histogram(feature_list[1][50:100], bins=10)
+    hist1_vir,bins1_vir = np.histogram(feature_list[1][100:150], bins=10)
+
+    hist2_set,bins2_set = np.histogram(feature_list[2][0:50], bins=10)
+    hist2_ver,bins2_ver = np.histogram(feature_list[2][50:100], bins=10)
+    hist2_vir,bins2_vir = np.histogram(feature_list[2][100:150], bins=10)
+
+    hist3_set,bins3_set = np.histogram(feature_list[3][0:50], bins=10)
+    hist3_ver,bins3_ver = np.histogram(feature_list[3][50:100], bins=10)
+    hist3_vir,bins3_vir = np.histogram(feature_list[3][100:150], bins=10)
+
+    plt.subplot(2,3,1)
+    plt.title("Histogram of 4 features for Setosa")
+    plt.xlabel("Measurement [cm]")
+    plt.ylabel("Number of samples in bin")
+    plt.hist(feature_list[0][0:50], bins=10)
+    plt.hist(feature_list[1][0:50], bins=10)
+    plt.hist(feature_list[2][0:50], bins=10)
+    plt.hist(feature_list[3][0:50], bins=10)
+
+    plt.subplot(2,3,2)
+    plt.title("Histogram of 4 features for Versicolor")
+    plt.xlabel("Measurement [cm]")
+    plt.ylabel("Number of samples in bin")
+    plt.hist(feature_list[0][50:100], bins=10)
+    plt.hist(feature_list[1][50:100], bins=10)
+    plt.hist(feature_list[2][50:100], bins=10)
+    plt.hist(feature_list[3][50:100], bins=10)
+
+    plt.subplot(2,3,3)
+    plt.title("Histogram of 4 features for Virginica")
+    plt.xlabel("Measurement [cm]")
+    plt.ylabel("Number of samples in bin")
+    plt.hist(feature_list[0][100:150], bins=10)
+    plt.hist(feature_list[1][100:150], bins=10)
+    plt.hist(feature_list[2][100:150], bins=10)
+    plt.hist(feature_list[3][100:150], bins=10)
 
 
+    #create legend
+    #handles = [Rectangle((0,0),1,1,color=c,ec="k") for c in [Sepal-Length,Sepal-Width, Petal-Length,Petal-Width]]
+    #labels= ["Sepal-Length","Sepal-Width", "Petal-Length","Petal-Width"]
+    #plt.legend(handles, labels)
+    
+
+    plt.show()
+    print(hist0_set)
+    print(bins0_set)
+
+plot_histograms()
 
 
 
