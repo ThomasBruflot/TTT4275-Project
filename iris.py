@@ -71,6 +71,16 @@ def plot_sepal_data(vec):
 
 
 #-----------------------------------------------
+def remove_feature(data,index):
+    new_data_list = []
+    for i in range(len(data)): # for alle 90 1x4 arrays inni datalista
+        small_list = [] #skal her fylle inn 1x3 array 
+        for k in range(len(data[0])): # For alle 4 datapunkter (seplen,sepwid,petlen,petwid)
+            if(k != index): #Sjekk om det ikke er sepwid
+                small_list.append(data[i][k])
+        new_data_list.append(small_list)
+    return np.array(new_data_list) #returnerer
+
 
 def loadData(case):
     if(case == 0):
@@ -86,7 +96,7 @@ def loadData(case):
         #The total testing set is now a 60x4 (Rows x Columns) matrix
         totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
         totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features])
-    else:
+    if(case == 1):
         testingSetSetosa = iris['data'][0:20]
         trainingSetSetosa = iris['data'][20:50]
         testingSetVersicolor = iris['data'][50:70]
@@ -99,6 +109,49 @@ def loadData(case):
         #The total testing set is now a 60x4 (Rows x Columns) matrix
         totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
         totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features])
+    if(case == 2):
+        #Case 2 skal fjerne sepal 
+        iris['data'] = remove_feature(iris['data'],1)
+        # for i in range (len(iris['data'])):
+        #     iris['data'][i] = np.delete(iris['data'][i],1)
+        print('test delete: ', iris['data'])
+
+
+        trainingSetSetosa = iris['data'][0:30]
+        testingSetSetosa = iris['data'][30:50]
+        trainingSetVersicolor = iris['data'][50:80]
+        testingSetVersicolor = iris['data'][80:100]
+        trainingSetVirginica = iris['data'][100:130]
+        testingSetVirginica = iris['data'][130:150]
+        #The total training set is now a 90x4 (Rows x Columns) matrix
+        totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
+        totalTrainingSet = np.reshape(totalTrainingSet,[30*Num_Classes,Num_Features-1])
+        #The total testing set is now a 60x4 (Rows x Columns) matrix
+        totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
+        totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features-1])
+    if(case == 3):
+        #Case 3 skal fjerne sepal length og width
+        iris['data'] = remove_feature(iris['data'],1)
+        iris['data'] = remove_feature(iris['data'],0)
+        # for i in range (len(iris['data'])):
+        #     iris['data'][i] = np.delete(iris['data'][i],1)
+        print('test delete: ', iris['data'])
+
+
+        trainingSetSetosa = iris['data'][0:30]
+        testingSetSetosa = iris['data'][30:50]
+        trainingSetVersicolor = iris['data'][50:80]
+        testingSetVersicolor = iris['data'][80:100]
+        trainingSetVirginica = iris['data'][100:130]
+        testingSetVirginica = iris['data'][130:150]
+        #The total training set is now a 90x4 (Rows x Columns) matrix
+        totalTrainingSet = np.concatenate((trainingSetSetosa,trainingSetVersicolor,trainingSetVirginica), axis=0)
+        totalTrainingSet = np.reshape(totalTrainingSet,[30*Num_Classes,Num_Features-2])
+        #The total testing set is now a 60x4 (Rows x Columns) matrix
+        totalTestingSet = np.concatenate((testingSetSetosa,testingSetVersicolor,testingSetVirginica), axis=0)
+        totalTestingSet = np.reshape(totalTestingSet,[20*Num_Classes,Num_Features-2])
+
+
     return totalTrainingSet,totalTestingSet
 
 #We need a total array of t values, we thus need to make a function that makes an array containing 
@@ -146,17 +199,17 @@ def calculate_prediction_g(x,W,n_data_per_class):
 
 #Need to implement equation (22) and (23)
 #Comp. Eq. (22):
-def calculate_gradW_MSE(g,t,x):
-    gradW_MSE = np.zeros([Num_Classes,Num_Features+1])
+def calculate_gradW_MSE(g,t,x,num_feat):
+    gradW_MSE = np.zeros([Num_Classes,num_feat+1])
     for xk,gk,tk in zip(x,g,t):    
         xk = np.append([xk],[1]) #Lager basically en ny matrise med enere i siste del, 3x4->3x5 med 1 på slutten
-        xk = xk.reshape(Num_Features+1,1) #Her blir så dette transponert
+        xk = xk.reshape(num_feat+1,1) #Her blir så dette transponert
         #Under her implementeres grad_gk_MSE og så grad_zk_g 
         grad_zk_g = (np.ones((Num_Classes,1))-gk.reshape(Num_Classes,1)) * (gk.reshape(Num_Classes,1))
         grad_gk_MSE = ((gk-tk)).reshape(Num_Classes,1)
         tmp = grad_gk_MSE * grad_zk_g
         #Tar her og regner ut 
-        gradW_MSE += np.matmul(tmp, xk.reshape(1,Num_Features+1))
+        gradW_MSE += np.matmul(tmp, xk.reshape(1,num_feat+1))
     return gradW_MSE
 
 #Comp. Eq. (23):
@@ -201,21 +254,21 @@ def calculate_confusion_matrix(g, t):
         
     return confusion_matrix
 
-def plot_confusion_matrix(confusion_matrix, classes, name="Confusin martix"):
+def plot_confusion_matrix(confusion_matrix, classes, name="Confusion martix"):
     dataframe_cm = pd.DataFrame(confusion_matrix, index=classes, columns=classes)
     fidure = plt.figure(num=name, figsize=(5,5))
 
     sns.heatmap(dataframe_cm, annot=True)
     plt.show()
 
-def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iterations=500):
-    W = np.zeros((Num_Classes,Num_Features+1)) #number of classes and number of features as it is CxD and D is dimension for features, have 5 because of w_0
+def training_lin_classifier(num_feat,trainingSetSamples,trainingSetTrueLabels,alpha, iterations=500):
+    W = np.zeros((Num_Classes,num_feat+1)) #number of classes and number of features as it is CxD and D is dimension for features, have 5 because of w_0
     MSE_List = []
     #Here we start the actual training by iterating through the training set and using the MSE
     for i in range(iterations):
         #training:
         g = calculate_prediction_g(trainingSetSamples,W,Num_Data_P_Class) #Use the totalTrainingSet defined earlier with all the data
-        W = calculate_W(W,alpha,calculate_gradW_MSE(g,trainingSetTrueLabels,trainingSetSamples))
+        W = calculate_W(W,alpha,calculate_gradW_MSE(g,trainingSetTrueLabels,trainingSetSamples,num_feat))
         MSE = mean_squared_error(g,trainingSetTrueLabels)
         MSE_List.append(MSE)
     
@@ -225,10 +278,10 @@ def training_lin_classifier(trainingSetSamples,trainingSetTrueLabels,alpha, iter
     print(conf_matr)
     return np.array(MSE_List),g, W
 
-totalTrainingSet, totalTestingSet = loadData(1)
-
-MSE_List_ret, g_ret, W_ret = training_lin_classifier(totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
-print("MSE_LIST and g from testing: ",MSE_List_ret,g_ret)
+#totalTrainingSet, totalTestingSet = loadData(1)
+#
+#MSE_List_ret, g_ret, W_ret = training_lin_classifier(totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+#print("MSE_LIST and g from testing: ",MSE_List_ret,g_ret)
 
 def testing_lin_classifier(testSetSamples,testSetTrueLabels,W, iterations=500):
     test_MSE_List = []
@@ -243,9 +296,9 @@ def testing_lin_classifier(testSetSamples,testSetTrueLabels,W, iterations=500):
     print(conf_matr)
     return np.array(test_MSE_List),g
 
-test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
-print("Testing results: \n")
-print("MSE_List_test and g_test: ",MSE_List_ret,g_ret)
+
+# print("Testing results: \n")
+# print("MSE_List_test and g_test: ",MSE_List_ret,g_ret)
 
 
 
@@ -263,64 +316,115 @@ def plot_histograms():
     feature_list.append([i[2] for i in iris['data']])
     feature_list.append([i[3] for i in iris['data']])
 
-    
-    hist0_set,bins0_set = np.histogram(feature_list[0][0:50], bins=10)
-    hist0_ver,bins0_ver = np.histogram(feature_list[0][50:100], bins=10)
-    hist0_vir,bins0_vir = np.histogram(feature_list[0][100:150], bins=10)
 
-    hist1_set,bins1_set = np.histogram(feature_list[1][0:50], bins=10)
-    hist1_ver,bins1_ver = np.histogram(feature_list[1][50:100], bins=10)
-    hist1_vir,bins1_vir = np.histogram(feature_list[1][100:150], bins=10)
-
-    hist2_set,bins2_set = np.histogram(feature_list[2][0:50], bins=10)
-    hist2_ver,bins2_ver = np.histogram(feature_list[2][50:100], bins=10)
-    hist2_vir,bins2_vir = np.histogram(feature_list[2][100:150], bins=10)
-
-    hist3_set,bins3_set = np.histogram(feature_list[3][0:50], bins=10)
-    hist3_ver,bins3_ver = np.histogram(feature_list[3][50:100], bins=10)
-    hist3_vir,bins3_vir = np.histogram(feature_list[3][100:150], bins=10)
-
-    plt.subplot(2,3,1)
-    plt.title("Histogram of 4 features for Setosa")
+    plt.subplot(2,2,1)
+    plt.title("Histogram of sepal length for Iris types")
     plt.xlabel("Measurement [cm]")
     plt.ylabel("Number of samples in bin")
-    plt.hist(feature_list[0][0:50], bins=10)
-    plt.hist(feature_list[1][0:50], bins=10)
-    plt.hist(feature_list[2][0:50], bins=10)
-    plt.hist(feature_list[3][0:50], bins=10)
+    plt.hist(feature_list[0][0:50], bins=10, label=iris['target_names'][0])
+    plt.hist(feature_list[0][50:100], bins=10, label=iris['target_names'][1])
+    plt.hist(feature_list[0][100:150], bins=10, label=iris['target_names'][2])
+    plt.legend()
 
-    plt.subplot(2,3,2)
-    plt.title("Histogram of 4 features for Versicolor")
+
+    plt.subplot(2,2,2)
+    plt.title("Histogram of sepal width for Iris types")
     plt.xlabel("Measurement [cm]")
     plt.ylabel("Number of samples in bin")
-    plt.hist(feature_list[0][50:100], bins=10)
-    plt.hist(feature_list[1][50:100], bins=10)
-    plt.hist(feature_list[2][50:100], bins=10)
-    plt.hist(feature_list[3][50:100], bins=10)
+    plt.hist(feature_list[1][0:50], bins=10, label=iris['target_names'][0])
+    plt.hist(feature_list[1][50:100], bins=10, label=iris['target_names'][1])
+    plt.hist(feature_list[1][100:150], bins=10, label=iris['target_names'][2])
+    plt.legend()
 
-    plt.subplot(2,3,3)
-    plt.title("Histogram of 4 features for Virginica")
+    plt.subplot(2,2,3)
+    plt.title("Histogram of petal length for Iris types")
     plt.xlabel("Measurement [cm]")
     plt.ylabel("Number of samples in bin")
-    plt.hist(feature_list[0][100:150], bins=10)
-    plt.hist(feature_list[1][100:150], bins=10)
-    plt.hist(feature_list[2][100:150], bins=10)
-    plt.hist(feature_list[3][100:150], bins=10)
+    plt.hist(feature_list[2][0:50], bins=10, label=iris['target_names'][0])
+    plt.hist(feature_list[2][50:100], bins=10, label=iris['target_names'][1])
+    plt.hist(feature_list[2][100:150], bins=10, label=iris['target_names'][2])
+    plt.legend()
 
-
-    #create legend
-    #handles = [Rectangle((0,0),1,1,color=c,ec="k") for c in [Sepal-Length,Sepal-Width, Petal-Length,Petal-Width]]
-    #labels= ["Sepal-Length","Sepal-Width", "Petal-Length","Petal-Width"]
-    #plt.legend(handles, labels)
-    
-
+    plt.subplot(2,2,4)
+    plt.title("Histogram of petal width for Iris types")
+    plt.xlabel("Measurement [cm]")
+    plt.ylabel("Number of samples in bin")
+    plt.hist(feature_list[3][0:50], bins=10, label=iris['target_names'][0])
+    plt.hist(feature_list[3][50:100], bins=10, label=iris['target_names'][1])
+    plt.hist(feature_list[3][100:150], bins=10, label=iris['target_names'][2])
+    plt.legend()
     plt.show()
-    print(hist0_set)
-    print(bins0_set)
-
-plot_histograms()
 
 
+    
+    hist_s_0,bins_s_0 = np.histogram(feature_list[0][0:50], bins=10)
+    hist_ve_0,bins_ve_0 = np.histogram(feature_list[0][50:100], bins=10)
+    hist_vir_0,bins_vir_0 = np.histogram(feature_list[0][100:150], bins=10)
+
+    hist_s_1,bins_s_1 =  np.histogram(feature_list[1][0:50], bins=10)
+    hist_ve_1,bins_ve_1 = np.histogram(feature_list[1][50:100], bins=10)
+    hist_vir_1,bins_vir_1 = np.histogram(feature_list[1][100:150], bins=10)
+
+    #printer data for å finne ut hvilken features vi skal fjerne.
+    # print("hist_s_0: ", hist_s_0)
+    # print("hist_ve_0: ", hist_ve_0)
+    # print("hist_vir_0: ", hist_vir_0)
+
+    # print("bins_s_0: ", bins_s_0)
+    # print("bins_ve_0: ", bins_ve_0)
+    # print("bins_vir_0: ", bins_vir_0)    
+
+    # print("hist_s_1: ", hist_s_1)
+    # print("hist_ve_1: ", hist_ve_1)
+    # print("hist_vir_1: ", hist_vir_1)
+
+    # print("bins_s_1: ", bins_s_1)
+    # print("bins_ve_1: ", bins_ve_1)
+    # print("bins_vir_1: ", bins_vir_1)
+    #Finner ut at sepal width forkastes sidne det har mest overlapp.
+    
+    # print("bins_s_0: ", bins_s_0)
+    # print("bins_ve_0: ", bins_ve_0)
+    # sum_s_ve_0 = 0
+    # sum_width = 0
+    # index_s_ve_0 = np.where(bins_s_0 == bins_ve_0)
+    # print("index: ", index_s_ve_0)
+    # for i in range(10-index_s_ve_0):
+    #    #if  hist_s_0[i]>0 & hist_ve_0>0:
+    #     sum_s_ve_0 += min(hist_s_0[i+index_s_ve_0],hist_ve_0[i]) 
+
+    
+    # print("test overlapp: ", sum_s_ve_0)
+
+#plot_histograms()
 
 
 
+
+#print(loadData(1))
+#print(loadData(2))
+
+def load_train_test(case):
+
+    if (case==0):#Her gjør vi som i oppg1a
+        totalTrainingSet, totalTestingSet = loadData(0)
+        MSE_List_ret, g_ret, W_ret = training_lin_classifier(Num_Features,totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+        test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
+   
+    if (case==1):#Her gjør vi oppgave 1d
+        totalTrainingSet, totalTestingSet = loadData(1)
+        MSE_List_ret, g_ret, W_ret = training_lin_classifier(Num_Features,totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+        test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
+
+    if (case == 2): #Her gjør vi oppgave 2a
+        totalTrainingSet, totalTestingSet = loadData(2)
+        MSE_List_ret, g_ret, W_ret = training_lin_classifier(Num_Features-1,totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+        test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
+    if (case == 3):#Her gjør vi oppgave 2b
+        totalTrainingSet, totalTestingSet = loadData(3)
+        MSE_List_ret, g_ret, W_ret = training_lin_classifier(Num_Features-2,totalTrainingSet,get_Targets(Num_Data_P_Class),alpha,2000)
+        test_MSE_List_ret, g_test_ret = testing_lin_classifier(totalTestingSet, get_Targets(20), W_ret,2000)
+
+
+print("test case 3: \n") 
+load_train_test(3)
