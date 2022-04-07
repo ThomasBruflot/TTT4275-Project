@@ -249,17 +249,10 @@ def calculate_confusion_matrix(g, t):
             pred_index = np.argmax(gk) #Gir ut 0 for [1 0 0], 1 for [0 1 0] og 2 for [0 0 1]
             true_index = np.argmax(tk) #Gir ut 0 for [1 0 0], 1 for [0 1 0] og 2 for [0 0 1]
             confusion_matrix[true_index][pred_index] += 1 #Bruker hvor 1-eren er til å indeksere matrisen
-                
-
-        
     return confusion_matrix
 
-def plot_confusion_matrix(confusion_matrix, classes, name="Confusion martix"):
-    dataframe_cm = pd.DataFrame(confusion_matrix, index=classes, columns=classes)
-    fidure = plt.figure(num=name, figsize=(5,5))
 
-    sns.heatmap(dataframe_cm, annot=True)
-    plt.show()
+#---------------- training -----------------
 
 def training_lin_classifier(num_feat,trainingSetSamples,trainingSetTrueLabels,alpha, iterations=500):
     W = np.zeros((Num_Classes,num_feat+1)) #number of classes and number of features as it is CxD and D is dimension for features, have 5 because of w_0
@@ -294,12 +287,42 @@ def testing_lin_classifier(testSetSamples,testSetTrueLabels,W, iterations=500):
     print(er)
     conf_matr = calculate_confusion_matrix(round_predictions(g),testSetTrueLabels)
     print(conf_matr)
+
+
+    #------------------ Plot confusion matrix -----------------------
+
+    ax = sns.heatmap(conf_matr, annot=True, cmap='Greens', linewidths=.7, cbar_kws={"shrink": .82},linecolor='black', clip_on=False)
+    ax.set_title('Confusion Matrix with labels\n\n')
+    ax.set_xlabel('\nPredicted Flower Category')
+    ax.set_ylabel('Actual Flower Category ')
+
+    ## Ticket labels - ( must be alphabetical order)
+    ax.xaxis.set_ticklabels(['Setosa','Versicolor', 'Virginia'])
+    ax.yaxis.set_ticklabels(['Setosa','Versicolor', 'Virginia'])
+
+    ## Display the visualization of the Confusion Matrix.
+    plt.show()
+
+    ax = sns.heatmap(conf_matr/np.sum(conf_matr), annot=True, 
+            fmt='.2%', cmap='Greens', linewidths=.7, cbar_kws={"shrink": .82}, linecolor='black', clip_on=False)
+
+    ax.set_title('Confusion Matrix given in percentage\n\n')
+    ax.set_xlabel('\nPredicted Flower Category')
+    ax.set_ylabel('Actual Flower Category ')
+
+    ## Ticket labels - List must be in alphabetical order
+    ax.xaxis.set_ticklabels(['Setosa','Versicolor', 'Virginia'])
+    ax.yaxis.set_ticklabels(['Setosa','Versicolor', 'Virginia'])
+
+    ## Display the visualization of the Confusion Matrix.
+    plt.show()
+
     return np.array(test_MSE_List),g
+
 
 
 # print("Testing results: \n")
 # print("MSE_List_test and g_test: ",MSE_List_ret,g_ret)
-
 
 
 
