@@ -264,21 +264,6 @@ def plot_histograms():
     feature_list.append([i[3] for i in iris['data']])
 
     
-    hist0_set,bins0_set = np.histogram(feature_list[0][0:50], bins=10)
-    hist0_ver,bins0_ver = np.histogram(feature_list[0][50:100], bins=10)
-    hist0_vir,bins0_vir = np.histogram(feature_list[0][100:150], bins=10)
-
-    hist1_set,bins1_set = np.histogram(feature_list[1][0:50], bins=10)
-    hist1_ver,bins1_ver = np.histogram(feature_list[1][50:100], bins=10)
-    hist1_vir,bins1_vir = np.histogram(feature_list[1][100:150], bins=10)
-
-    hist2_set,bins2_set = np.histogram(feature_list[2][0:50], bins=10)
-    hist2_ver,bins2_ver = np.histogram(feature_list[2][50:100], bins=10)
-    hist2_vir,bins2_vir = np.histogram(feature_list[2][100:150], bins=10)
-
-    hist3_set,bins3_set = np.histogram(feature_list[3][0:50], bins=10)
-    hist3_ver,bins3_ver = np.histogram(feature_list[3][50:100], bins=10)
-    hist3_vir,bins3_vir = np.histogram(feature_list[3][100:150], bins=10)
 
     plt.subplot(2,3,1)
     plt.title("Histogram of 4 features for Setosa")
