@@ -12,6 +12,13 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.datasets import mnist
 from sklearn.cluster import KMeans
 
+from collections import Counter
+from sklearn.datasets import fetch_openml
+import pandas as pd
+import time
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 #------------
 
 (train_x, train_y), (test_x, test_y) = mnist.load_data()
