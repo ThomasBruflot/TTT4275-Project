@@ -7,7 +7,7 @@ import seaborn as sns
 
 #------------
 
-(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()  
 
 flat_train_images = train_images.flatten()
 reshap_train_images = np.reshape(train_images, (len(train_images),784))
@@ -128,14 +128,14 @@ def calculate_nearest_neighbour(trainImages, trainLabels, testImages, testLabels
     
     return corrPred,wrongPred
 
-corrPred, wrongPred = calculate_nearest_neighbour(reshap_train_images,train_labels,reshap_test_images,test_labels,60000,10000)
+#corrPred, wrongPred = calculate_nearest_neighbour(reshap_train_images,train_labels,reshap_test_images,test_labels,60000,10000)
 #
 #testVal = 1
 #print("CorrPred0: ", corrPred[testVal])
 #print("prediction values: ", test_labels[corrPred[testVal][0]], " ", train_labels[corrPred[testVal][1]])
 #print("prediction values: ", test_labels[1], " ", train_labels[360])
-print("All wrong predictions: ", str(len(wrongPred)))
-print("All correct predictions: ", str(len(corrPred)))
+# print("All wrong predictions: ", str(len(wrongPred)))
+# print("All correct predictions: ", str(len(corrPred)))
 
 
 
@@ -199,7 +199,7 @@ def cluster(trainImages, trainLabels, M):
 
 
 
-# ------------- K nearest :D:D:D:D:D:D:)
+# ------------- K nearest :D:D:D:D:D:D:*
 
 def calculate_knn(trainImages, trainLabels, testImages, testLabels, NumTrain, NumTest, K):
     confusionMatrix = np.zeros((10,10))
@@ -210,7 +210,7 @@ def calculate_knn(trainImages, trainLabels, testImages, testLabels, NumTrain, Nu
         indexPred = np.zeros(7)   #Index of prediction
         minDist = np.zeros(7)       #lager en liste på 7
         for j in range(NumTrain):
-            dist = calculate_euclidean_distance2(testImages[i],trainImages[j])
+            dist = calculate_euclidean_distance3(testImages[i],trainImages[j])
             #dist = distance.euclidean(testImages[i],trainImages[k])
             if(j < K):
                 minDist[j] = dist # for å starte å fylle listen
@@ -246,7 +246,8 @@ def calculate_knn(trainImages, trainLabels, testImages, testLabels, NumTrain, Nu
     unique, counts = np.unique(test_labels, return_counts=True)
     percentMatrix = confusionMatrix
     for i in range(len(percentMatrix)):
-        percentMatrix[i] = percentMatrix[i]/counts[i]
+        #number correct / total
+        percentMatrix[i] = percentMatrix[i]/np.sum(counts[i])
     
     ax = sns.heatmap(percentMatrix, annot=True, 
             fmt='.2%', cmap='Greens', linewidths=.7, cbar_kws={"shrink": .82}, linecolor='black', clip_on=False)
@@ -264,8 +265,11 @@ def calculate_knn(trainImages, trainLabels, testImages, testLabels, NumTrain, Nu
 
     return corrPred,wrongPred
 
-#corrPred, wrongPred = calculate_knn(cluster_templates,cluster_labels,test_img,test_labels,640,10000, 7)
 
-#print("All wrong predictions: ", str(len(wrongPred)))
-#print("All correct predictions: ", str(len(corrPred)))
+#reshap_train_images,train_labels,reshap_test_images,test_labels,60000,10000
+
+corrPred, wrongPred = calculate_knn(reshap_train_images,train_labels,reshap_test_images,test_labels,60000,10000, 7)
+
+print("All wrong predictions: ", str(len(wrongPred)))
+print("All correct predictions: ", str(len(corrPred)))
 
